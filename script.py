@@ -3,7 +3,11 @@
 import requests
 import json
 
-cid = input("Enter your CID:") # User inputs a unique chemical identifier called a CID
+cid = input("Enter your CID: ") # User inputs a unique chemical identifier called a CID
+
+days = input("How far back in time, in days, do you want the search to go?: ")
+
+
 
 url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/" + cid + "/JSON?heading=mesh+entry+terms" # This constructs the url for the PubChem API
 
@@ -23,7 +27,7 @@ for synonymdict in synonyms_list:
     for key, synonym in synonymdict.items():
 
         # First we create the Entrez API query URL
-        entrez_url="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&reldate=1&retmax=1000&retmode=json&term=" + synonym
+        entrez_url="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&reldate=" +days+ "&retmax=1000&retmode=json&term=" + synonym
 
         # Next we query the API for a list of papers which match that synonym
         entrez_response = requests.get(entrez_url)
