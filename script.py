@@ -2,12 +2,18 @@
 
 import requests
 import json
+import pubchempy as pcp 
+import re
 
-cid = input("Enter your CID: ") # User inputs a unique chemical identifier called a CID
+drugname = input("Enter molecule name: ")
+
+result = pcp.get_compounds(drugname, 'name') # User inputs a unique chemical identifier called a CID
+
+cid = re.sub("[^0-9]", "", str(result))
+
+print(cid)
 
 days = input("How far back in time, in days, do you want the search to go?: ")
-
-
 
 url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/" + cid + "/JSON?heading=mesh+entry+terms" # This constructs the url for the PubChem API
 
@@ -15,7 +21,7 @@ url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/" + cid + "/
 synonyms_json = requests.get(url) # Here we are recovering the data from the API
 
 synonyms_list = synonyms_json.json() # Transforming the JSON data into a Python array for parsing
-
+ 
 # The following block of code parses the nested arrays down to just a single list of synonyms for the drug.
 
 synonyms_list = synonyms_list['Record']['Section'][0]['Section'][0]['Section'][0]['Information'][0]['Value']['StringWithMarkup']
