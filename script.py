@@ -5,18 +5,19 @@ import json
 import pubchempy as pcp 
 import re
 
+html_tag_matcher = re.compile('&lt;.*?&gt;')
+
 drugname = input("Enter molecule name: ")
+
+
 
 result = pcp.get_compounds(drugname, 'name') # User inputs a unique chemical identifier called a CID
 
 cid = re.sub("[^0-9]", "", str(result))
 
-print(cid)
-
 days = input("How far back in time, in days, do you want the search to go?: ")
 
 url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/" + cid + "/JSON?heading=mesh+entry+terms" # This constructs the url for the PubChem API
-
 
 synonyms_json = requests.get(url) # Here we are recovering the data from the API
 
@@ -24,7 +25,14 @@ synonyms_list = synonyms_json.json() # Transforming the JSON data into a Python 
  
 # The following block of code parses the nested arrays down to just a single list of synonyms for the drug.
 
-synonyms_list = synonyms_list['Record']['Section'][0]['Section'][0]['Section'][0]['Information'][0]['Value']['StringWithMarkup']
+try: synonyms_list = synonyms_list['Record']['Section'][0]['Section'][0]['Section'][0]['Information'][0]['Value']['StringWithMarkup']
+    
+except KeyError:
+
+    print("No information about that compound, sorry.")
+    exit()
+
+print(drugname + "'s PubChem CID is: " + cid)
 
 big_list = []
 
@@ -71,6 +79,8 @@ for dictionary in big_list:
 
 
 for key, item in flat_dictionary.items():
+
+    item = html_tag_matcher.sub('', item)
 
     # This loop is basically the same as the first one except it uses entrez eutils summary instead of eutils search to find info from the PMID,
     # then prints it to the output file
